@@ -22,11 +22,11 @@ Bowling_Frame::Bowling_Frame(int fnum)
 
 }
 
-Bowling_Frame::~Bowling_Frame()
-{
-	free(next_frame_);
-	free(prev_frame_);
-}
+//Bowling_Frame::~Bowling_Frame()
+//{
+	//free(next_frame_);
+	//free(prev_frame_);
+//}
 
 Bowling_Frame* Bowling_Frame::next_frame() { return next_frame_; }
 void Bowling_Frame::next_frame( Bowling_Frame * new_frame ) { next_frame_ = new_frame; }
@@ -64,6 +64,27 @@ void Bowling_Frame::update_scores()
 	std::uniform_int_distribution<std::mt19937::result_type> dist10(0, 10);
 	// Tenth frame logic
 	if (frame_num_ == 10) {
+		// Generate first roll
+		if (!roll_one_) {
+			score1_ = dist10(rng);
+			roll_one_ = true;
+
+			if(score1_ == 10) strike_ = true; 
+		}
+		// Generate second roll
+		if (!roll_two_) {
+			score2_ = dist10(rng);
+			roll_two_ = true;
+
+			if(score2_ == 10) strike_ = true; 
+		}
+		// Generate third roll
+		if (!roll_three_) {
+			score3_ = dist10(rng);
+			roll_three_ = true;
+
+			if(score3_ == 10) strike_ = true; 
+		}
 
 		// Handle tenth frame logic for strikes
     	if (strike_) {
@@ -115,28 +136,29 @@ void Bowling_Frame::update_scores()
 
 			if ((score1_ + score2_) == 10) spare_ = true;
 		}
-	}
-	// Update the next frame's scores before calculating bonuses
-	if (next_frame_) {
-		 	next_frame_->update_scores();
-		}
-	// Add score before considering strikes and spares bonuses
-	frame_score_ += score1_ + score2_;
+	
+		// Update the next frame's scores before calculating bonuses
+		if (next_frame_) {
+				next_frame_->update_scores();
+			}
+		// Add score before considering strikes and spares bonuses
+		frame_score_ = score1_ + score2_;
 
-	// Add Spare bonus
-	if (spare_ && next_frame_)
-	{
-		frame_score_ += next_frame_->score1();
-	}
-	// Add Strike bonus
-	if (strike_ && next_frame_)
-	{
-		frame_score_ += next_frame_->score1();
-		if (next_frame_->strike() && next_frame_->next_frame_){
-			frame_score_ += next_frame_->next_frame()->score1();
+		// Add Spare bonus
+		if (spare_ && next_frame_)
+		{
+			frame_score_ += next_frame_->score1();
 		}
-		else {
-			frame_score_ += next_frame_->score2();
+		// Add Strike bonus
+		if (strike_ && next_frame_)
+		{
+			frame_score_ += next_frame_->score1();
+			if (next_frame_->strike() && next_frame_->next_frame_){
+				frame_score_ += next_frame_->next_frame()->score1();
+			}
+			else {
+				frame_score_ += next_frame_->score2();
+			}
 		}
 	}
 }
