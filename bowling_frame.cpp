@@ -22,11 +22,11 @@ Bowling_Frame::Bowling_Frame(int fnum)
 
 }
 
-//Bowling_Frame::~Bowling_Frame()
-//{
+Bowling_Frame::~Bowling_Frame()
+{
 	//free(next_frame_);
 	//free(prev_frame_);
-//}
+}
 
 Bowling_Frame* Bowling_Frame::next_frame() { return next_frame_; }
 void Bowling_Frame::next_frame( Bowling_Frame * new_frame ) { next_frame_ = new_frame; }
@@ -72,49 +72,24 @@ void Bowling_Frame::update_scores()
 			if(score1_ == 10) strike_ = true; 
 		}
 		// Generate second roll
-		if (!roll_two_) {
-			score2_ = dist10(rng);
+		else if (!roll_two_) {
+			int pins_left = strike_ ? 10 : 10 - score1_;
+			std::uniform_int_distribution<std::mt19937::result_type> dist2(0, pins_left);
+			score2_ = dist2(rng);
 			roll_two_ = true;
 
-			if(score2_ == 10) strike_ = true; 
+			if (!strike_ && (score1_ + score2_) == 10) {
+				spare_ = true;
+			}
+
 		}
 		// Generate third roll
-		if (!roll_three_) {
-			score3_ = dist10(rng);
+		else if ((strike_ || spare_) && !roll_three_) {
+			int pins_left = (strike_ && score2_ != 10) ? 10 - score2_ : 10;
+			std::uniform_int_distribution<std::mt19937::result_type> dist3(0, pins_left);
+			score3_ = dist3(rng);
 			roll_three_ = true;
-
-			if(score3_ == 10) strike_ = true; 
 		}
-
-		// Handle tenth frame logic for strikes
-    	if (strike_) {
-
-        	// Generate second roll
-        	if (!roll_two_) {
-            	std::uniform_int_distribution<std::mt19937::result_type> dist(0, 10);
-            	score2_ = dist(rng);
-            	roll_two_ = true;
-        	}
-        
-
-        	// Generate third roll
-        	if (!roll_three_) {
-
-            	std::uniform_int_distribution<std::mt19937::result_type> dist(0, 10);
-            	score3_ = dist(rng);
-            	roll_three_ = true;
-        	}
-    	}
-    	else if (spare_) {
-
-        	// Generate third roll
-        	if (!roll_three_) {
-
-        	    std::uniform_int_distribution<std::mt19937::result_type> dist(0, 10);
-        	    score3_ = dist(rng);
-        	    roll_three_ = true;
-        	}
-    	}
 
     	// Calculate tenth frame score
     	frame_score_ = score1_ + score2_ + score3_;
