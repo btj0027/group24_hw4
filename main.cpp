@@ -62,6 +62,8 @@ int main(int argc, char * argv[])
 			cout << "Frame " << traverse->frame_num() << ":" << endl
 					<< " Score 1: " << traverse->score1() << endl
 					<< " Score 2: " << traverse->score2() << endl;
+			if (traverse->frame_num() == NUM_FRAMES && (traverse->strike() || traverse->spare()))
+				cout << " Score 3: " << traverse->score3() << endl;
 			traverse = traverse->next_frame();
 		}
 		cout << endl << "Total Game Score for player " << (p+1) << ": "
